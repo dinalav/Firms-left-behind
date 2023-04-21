@@ -30,8 +30,8 @@ drop _merge
 save bs`ind', replace
 
 renvars, presub("INDU" "")
-drop EU_2019`ind'13QPSQ EU_2019`ind'15BSQ EU_2019`ind'8F2SQ ///
-EU_2019`ind'8F3SQ EU_2019`ind'8F4SQ EU_2019`ind'8F6SQ
+cap drop EU_2019`ind'13QPSQ EU_2019`ind'15BSQ EU_2019`ind'8F2SQ ///
+EU_2019`ind'8F3SQ EU_2019`ind'8F4SQ EU_2019`ind'8F6SQ // it does not appear in the 2023 editions!
 
 renvars *F3SQ, prefix("ls")
 renvars *F6SQ, prefix("fs")
@@ -154,11 +154,12 @@ save, replace
 // *** create yearly date (average over 4 quarters)
 use "bs_all", clear
 sort nace2 eucode year quarter
-foreach x in ls fs cu co de eq {
+// except for co - the rest are in % https://economy-finance.ec.europa.eu/system/files/2023-02/bcs_user_guide.pdf
+foreach x in ls fs cu de eq {
 replace `x' = . if `x' <0
 }
 collapse (mean) ls fs cu co de eq, by(eucode nace2 year)
-foreach x in ls fs cu co de eq {
+foreach x in ls fs cu de eq {
 replace `x' = 100 if `x' >100 & !mi(`x')
 replace `x' = `x'/100
 }
